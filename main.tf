@@ -40,7 +40,7 @@ resource "aws_iam_instance_profile" "instance_profile" {
   role = aws_iam_role.aws_access.name
 }
 resource "aws_instance" "managed_nodes" {
-  ami = "ami-0f095f89ae15be883"
+  ami = "ami-0005e0cfe09cc9050"
   count = 3
   instance_type = "t2.micro"
   key_name = var.ssh_key_name
