@@ -3,11 +3,14 @@
   become: true
   vars_files:
     - "playbook-vars.yml"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
   tasks:
     - name: Update all packages
       yum:
         name: '*'
         state: latest
+      when: ansible_facts['distribution_major_version'] is version('8', '>=')
 
     - name: Remove Docker if installed from CentOS repo
       yum:
