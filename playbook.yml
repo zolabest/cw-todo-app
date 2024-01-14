@@ -12,7 +12,7 @@
         state: latest
       when: ansible_facts['distribution_major_version'] is version('8', '>=')
 
-  - name: Install Docker and config   # PLAY1
+- name: Install Docker and config   # PLAY1
   hosts: _development
   become: true
   vars_files:
