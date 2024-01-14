@@ -7,13 +7,13 @@
     ansible_python_interpreter: /usr/bin/python3
   tasks:
     - name: Update all packages
-      yum:
+      dnf:
         name: '*'
         state: latest
       when: ansible_facts['distribution_major_version'] is version('8', '>=')
 
     - name: Remove Docker if installed from CentOS repo
-      yum:
+      dnf:
         name: "{{ item }}"
         state: removed
       with_items:
@@ -27,7 +27,7 @@
         - docker-engine
 
     - name: Install yum utils
-      yum:
+      dnf:
         name: "{{ item }}"
         state: latest
       with_items:
@@ -148,3 +148,4 @@
         state: started
         ports:
           - "3000:3000"
+
