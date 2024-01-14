@@ -12,11 +12,26 @@
         state: latest
       when: ansible_facts['distribution_major_version'] is version('8', '>=')
 
+  - name: Install Docker and config   # PLAY1
+  hosts: _development
+  become: true
+  vars_files:
+    - "playbook-vars.yml"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  tasks:
+    - name: Update all packages
+      ansible.builtin.dnf:
+        name: '*'
+        state: latest
+      when: ansible_facts['distribution_major_version'] is version('8', '>=')
+
     - name: Remove Docker if installed from CentOS repo
-      dnf:
+      ansible.builtin.dnf:
         name: "{{ item }}"
-        state: removed
-      with_items:
+        state: absent
+      loop:
         - docker
         - docker-client
         - docker-client-latest
@@ -27,56 +42,54 @@
         - docker-engine
 
     - name: Install yum utils
-      dnf:
+      ansible.builtin.dnf:
         name: "{{ item }}"
-        state: latest
-      with_items:
+        state: present
+      loop:
         - yum-utils
         - device-mapper-persistent-data
         - lvm2
         - unzip
 
     - name: Add Docker repo
-      get_url:
+      ansible.builtin.get_url:
         url: https://download.docker.com/linux/centos/docker-ce.repo
         dest: /etc/yum.repos.d/docker-ce.repo
 
     - name: Install Docker
-      package:
+      ansible.builtin.dnf:
         name: docker-ce
-        state: latest
+        state: present
 
     - name: Install pip
-      package:
+      ansible.builtin.dnf:
         name: python3-pip
         state: present
-        update_cache: true
 
-    - name: Install Docker SDK
-      pip:
+    - name: Install Docker SDK for Python
+      ansible.builtin.pip:
         name: docker
 
     - name: Add ec2-user to docker group
-      user:
+      ansible.builtin.user:
         name: ec2-user
         groups: docker
         append: yes
 
     - name: Start Docker service
-      service:
+      ansible.builtin.service:
         name: docker
         state: started
         enabled: yes
 
     - name: Download AWS CLI
-      get_url:
+      ansible.builtin.get_url:
         url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
         dest: /home/ec2-user/awscliv2.zip
 
-    - name: Unzip zip file
-      unarchive:
-        src: /home/ec2-user/awscliv2.zip
-        dest: /home/ec2-user
+    - name: Unzip AWS CLI
+      ansible.builtin.unarchive:
+        src: /home/ec2-user
         remote_src: True
 
     - name: Install the AWS CLI
